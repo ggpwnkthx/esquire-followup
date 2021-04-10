@@ -1,0 +1,96 @@
+version: '3'
+
+services:
+    authelia:
+        image: authelia/authelia:latest
+        entrypoint: /bin/entrypoint.sh
+        environment:
+          DOMAIN_NAME: "${DOMAIN_NAME}"
+          ADMIN_EMAIL: "${AUTHELIA_ADMIN_EMAIL}"
+          ADMIN_PASSWORD: "${AUTHELIA_ADMIN_PASSWORD}"
+          TZ: "America/New_York"
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.authelia.tls=true"
+          - "traefik.http.routers.authelia.tls.certresolver=letsencrypt"
+          - "traefik.http.routers.authelia.entrypoints=web-secured"
+          - "traefik.http.routers.authelia.rule=Host(`login.${DOMAIN_NAME}`)"
+          - "traefik.http.routers.authelia.service=authelia"
+          - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+          - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://login.${DOMAIN_NAME}/"
+          - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
+          - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email"
+        volumes:
+          - ./authelia/entrypoint.sh:/bin/entrypoint.sh
+          - ./authelia/config:/config
+      httpbin:
+        image: kennethreitz/httpbin
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.httpbin.tls=true"
+          - "traefik.http.routers.httpbin.tls.certresolver=letsencrypt"
+          - "traefik.http.routers.httpbin.entrypoints=web-secured"
+          - "traefik.http.routers.httpbin.rule=Host(`httpbin.${DOMAIN_NAME}`)"
+          - "traefik.http.routers.httpbin.service=httpbin"
+          - "traefik.http.routers.httpbin.middlewares=authelia@docker"
+          - "traefik.http.services.httpbin.loadbalancer.server.port=80"
+      coder:
+        build:
+          context: ./coder
+        command:
+          - "--auth"
+          - "none"
+          - "--bind-addr"
+          - "0.0.0.0:8080"
+          - "--cert"
+          - "false"
+          - "--user-data-dir"
+          - "/home/coder/.persistent/user"
+          - "--extensions-dir"
+          - "/home/coder/.persistent/extensions"
+        environment:
+          GOPATH: "/home/coder/.persistent/extensions/golang.go-0.23.3/gopath"
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.coder.tls=true"
+          - "traefik.http.routers.coder.tls.certresolver=letsencrypt"
+          - "traefik.http.routers.coder.entrypoints=web-secured"
+          - "traefik.http.routers.coder.rule=Host(`coder.${DOMAIN_NAME}`)"
+          - "traefik.http.routers.coder.service=coder"
+          - "traefik.http.routers.coder.middlewares=authelia@docker"
+          - "traefik.http.services.coder.loadbalancer.server.port=8080"
+        volumes:
+          - ./coder:/home/coder/.persistent
+        working_dir: "/home/coder/project"
+      traefik:
+        image: "traefik:latest"
+        command:
+          - "--log.level=DEBUG"
+          - "--api.insecure=true"
+          - "--providers.docker=true"
+          - "--providers.docker.exposedbydefault=false"
+          - "--entrypoints.web.address=:80"
+          - "--entrypoints.web-secured.address=:443"
+          - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+          - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+          - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN_NAME}`)"
+          - "traefik.http.routers.dashboard.service=api@internal" 
+          - "traefik.http.routers.dashboard.entrypoints=web-secured"
+          - "traefik.http.routers.dashboard.tls=true"
+          - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+          - "traefik.http.routers.dashboard.middlewares=authelia@docker"
+          - "traefik.http.middlewares.add-dashboard.addprefix.prefix=/dashboard"
+          - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+          - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+          - "traefik.http.routers.http-catchall.rule=hostregexp(`{any:.+}`)" # global redirect to https
+          - "traefik.http.routers.http-catchall.entrypoints=web"
+          - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+        ports:
+          - "80:80"
+          - "443:443"
+        volumes:
+          - "./letsencrypt:/letsencrypt"
+          - "/var/run/docker.sock:/var/run/docker.sock:ro"
