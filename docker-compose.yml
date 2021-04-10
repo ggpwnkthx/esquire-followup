@@ -59,20 +59,7 @@ services:
       - "traefik.http.services.coder.loadbalancer.server.port=8080"
     volumes:
       - coder:/home/coder/.persistent
-      - ./api:/home/coder/project
     working_dir: "/home/coder/project"
-  ggpwnkthx-api-v1:
-    build: 
-      context: ./api
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.tls=true"
-      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.api.entrypoints=web-secured"
-      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN_NAME}`)"
-      - "traefik.http.routers.api.service=api"
-      - "traefik.http.routers.api.middlewares=authelia@docker"
-      - "traefik.http.services.api.loadbalancer.server.port=8080"
   traefik:
     image: "traefik:latest"
     command:
