@@ -1,8 +1,8 @@
 version: '3'
 services:
   authelia:
-    image: authelia/authelia:latest
-    entrypoint: /bin/entrypoint.sh
+    build:
+      context: ./authelia
     environment:
       DOMAIN_NAME: "${DOMAIN_NAME}"
       ADMIN_EMAIL: "${AUTHELIA_ADMIN_EMAIL}"
@@ -20,8 +20,7 @@ services:
       - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email"
     volumes:
-      - ./authelia/entrypoint.sh:/bin/entrypoint.sh
-      - ./authelia/config:/config
+      - authelia:/config
   httpbin:
     image: kennethreitz/httpbin
     labels:
@@ -59,7 +58,7 @@ services:
       - "traefik.http.routers.coder.middlewares=authelia@docker"
       - "traefik.http.services.coder.loadbalancer.server.port=8080"
     volumes:
-      - ./coder:/home/coder/.persistent
+      - coder:/home/coder/.persistent
     working_dir: "/home/coder/project"
   traefik:
     image: "traefik:latest"
@@ -91,5 +90,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "./letsencrypt:/letsencrypt"
+      - "letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+volumes:
+  authelia:
+  coder:
+  letsencrypt:
+  
