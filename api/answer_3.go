@@ -12,6 +12,11 @@ import (
 )
 
 func apiAnswer3(w http.ResponseWriter, r *http.Request) {
+	// Allow CORS
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    if r.Method == http.MethodOptions {
+        return
+    }
 	// Parse the HTTP Request to this service
 	vars := mux.Vars(r)
 	state := strings.ToUpper(vars["state"]) // State has to be uppercase

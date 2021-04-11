@@ -50,10 +50,16 @@ storage:
   local:
     path: /config/preferences.sqlite3
 
+EOF
+    if [ -f /config/smtp.yml ]; then
+        cat /config/smtp.yml >> /config/configuration.yml
+    else
+        cat <<EOF >> /config/configuration.yml
 notifier:
   filesystem:
     filename: /config/notifications
 EOF
+    fi
 fi
 
 if [ ! -f /config/users.yml ]; then

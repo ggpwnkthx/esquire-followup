@@ -11,6 +11,11 @@ import (
 )
 
 func apiAnswer1(w http.ResponseWriter, r *http.Request) {
+	// Allow CORS
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if r.Method == http.MethodOptions {
+		return
+	}
 	// Parse the HTTP Request to this service
 	vars := mux.Vars(r)
 	slug := strings.ToUpper(vars["slug"]) // Slug has to be uppercase
@@ -26,8 +31,14 @@ func apiAnswer1(w http.ResponseWriter, r *http.Request) {
 	params.Add("end", end.Format(time.RFC3339))
 
 	// Process the Request to and Response from data provider
+	var raw []ExchangeRateHistory
+	JSONRequest(NomicsAPIURL+"exchange-rates/history?"+params.Encode(), &raw)
+
+	// Get weekly close
 	var data []ExchangeRateHistory
-	JSONRequest(NomicsAPIURL+"exchange-rates/history?"+params.Encode(), &data)
+	for i := 6; i < len(raw); i += 7 {
+		data = append(data, raw[i])
+	}
 
 	// Output as JSON
 	outputJSON(w, data)
