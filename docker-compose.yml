@@ -78,7 +78,7 @@ services:
     build:
       context: ./gui
     environment:
-      CHOKIDAR_USEPOLLING: true
+      CHOKIDAR_USEPOLLING: "true"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gui.tls=true"
