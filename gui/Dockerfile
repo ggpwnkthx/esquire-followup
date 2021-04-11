@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:apline3.10
+FROM node:alpine3.10
 
 # set working directory
 WORKDIR /app
