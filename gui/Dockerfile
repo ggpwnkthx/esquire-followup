@@ -1,22 +1,8 @@
-# pull official base image
 FROM node:alpine3.10
-
-# set working directory
+RUN mkdir -p /app/node_modules
 WORKDIR /app
-
-# add `/app/node_modules/.bin` to $PATH
 ENV PATH /app/node_modules/.bin:$PATH
-
-# install app dependencies
-COPY package.json ./
-#COPY package-lock.json ./
-RUN npm install --silent
-RUN npm install react-scripts -g --silent
-
-# add app
-COPY . ./
-
 EXPOSE 3000
-
-# start app
-CMD ["npm", "start"]
+COPY ./entrypoint.sh /bin/entrypoint.sh
+RUN chmod +x /bin/entrypoint.sh
+CMD [ "/bin/entrypoint.sh" ]

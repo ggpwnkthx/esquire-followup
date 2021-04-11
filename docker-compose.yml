@@ -90,6 +90,7 @@ services:
       - "traefik.http.services.gui.loadbalancer.server.port=8080"
     volumes:
       - ./gui:/app
+      - '/app/node_modules'
   traefik:
     image: "traefik:latest"
     command:
