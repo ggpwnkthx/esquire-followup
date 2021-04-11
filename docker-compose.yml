@@ -73,7 +73,7 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.${DOMAIN_NAME}`)"
       - "traefik.http.routers.api.service=api"
       - "traefik.http.routers.api.middlewares=authelia@docker"
-      - "traefik.http.services.api.loadbalancer.server.port=3000"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
   gui:
     build:
       context: ./gui
@@ -87,7 +87,7 @@ services:
       - "traefik.http.routers.gui.rule=Host(`gui.${DOMAIN_NAME}`)"
       - "traefik.http.routers.gui.service=api"
       - "traefik.http.routers.gui.middlewares=authelia@docker"
-      - "traefik.http.services.gui.loadbalancer.server.port=8080"
+      - "traefik.http.services.gui.loadbalancer.server.port=3000"
     volumes:
       - ./gui:/app
   traefik:
