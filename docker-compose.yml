@@ -77,6 +77,8 @@ services:
   gui:
     build:
       context: ./gui
+    environement:
+      CHOKIDAR_USEPOLLING: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gui.tls=true"
@@ -88,6 +90,7 @@ services:
       - "traefik.http.services.gui.loadbalancer.server.port=8080"
     volumes:
       - ./gui:/app
+      - '/app/node_modules'
   traefik:
     image: "traefik:latest"
     command:
