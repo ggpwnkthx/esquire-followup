@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import './App.css';
 import Navbar from "./component/Navbar";
 import Storm from "./component/Storm";
+import BitCoin from "./component/BitCoin";
 import {
     BrowserRouter as Router,
     Switch,
-    Route,
-    Link
+    Route
 } from "react-router-dom";
 
 const App = () => {
@@ -17,6 +17,9 @@ const App = () => {
                 <Switch>
                     <Route path="/storm" component={Storm}>
                         <Storm />
+                    </Route>
+                    <Route path="/btc" component={BitCoin}>
+                        <BitCoin />
                     </Route>
                 </Switch>
             </Router>

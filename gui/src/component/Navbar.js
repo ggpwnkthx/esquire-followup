@@ -1,10 +1,7 @@
 import React from 'react'
 import '../App.css';
 import * as ReactBootStrap from "react-bootstrap";
-import {
-    BrowserRouter as Router,
-    Link
-} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 
 const Navbar = () => {
     return(
@@ -16,6 +13,9 @@ const Navbar = () => {
                 <ReactBootStrap.Nav className="mr-auto">
                     <Link to="/storm">
                         <ReactBootStrap.Nav.Link href="#storm">Storm Events</ReactBootStrap.Nav.Link>
+                    </Link>
+                    <Link to="/btc">
+                        <ReactBootStrap.Nav.Link href="#storm">BitCoin</ReactBootStrap.Nav.Link>
                     </Link>
                 </ReactBootStrap.Nav>
                 </ReactBootStrap.Navbar.Collapse>

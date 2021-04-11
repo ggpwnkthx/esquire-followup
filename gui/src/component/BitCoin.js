@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2'
 
-const Storm = () => {
+const BitCoin = () => {
     const [chartData, setChartData] = useState({});
     const chartOptions = {
         scales: {
@@ -29,19 +29,17 @@ const Storm = () => {
     }
     const chart = () => {
         let date = []
-        let propertyDamage = []
-        axios.get('https://api.esquire.jessup.info/v1/answer/3/Kentucky/2018')
+        let rate = []
+        axios.get('https://api.esquire.jessup.info/v1/answer/1/BTC/2018')
             .then(res => {
                 for (const dataObj of res.data) {
-                    if (dataObj.Damage > 0) {
-                        date.push(Date.parse(dataObj.Date));
-                        propertyDamage.push(dataObj.Damage);
-                    }
+                    date.push(Date.parse(dataObj.timestamp));
+                    rate.push(dataObj.rate);
                 }
                 setChartData({
                     labels: date,
                     datasets: [
-                        {label: "damage", data: propertyDamage}
+                        {label: "rate", data: rate},
                     ]
                 })
             })
@@ -56,11 +54,11 @@ const Storm = () => {
 
     return (
         <div className="App">
-            <h1>Storm Event Data</h1>
-            <h2>Kentucky | 2018</h2>
+            <h1>BitCoin</h1>
+            <h2>Year to Date, by Week | 2018</h2>
             <div><Line data={chartData} options={chartOptions} /></div>
         </div>
     )
 }
 
-export default Storm;
+export default BitCoin;
