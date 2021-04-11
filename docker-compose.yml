@@ -85,7 +85,7 @@ services:
       - "traefik.http.routers.gui.tls.certresolver=letsencrypt"
       - "traefik.http.routers.gui.entrypoints=web-secured"
       - "traefik.http.routers.gui.rule=Host(`gui.${DOMAIN_NAME}`)"
-      - "traefik.http.routers.gui.service=api"
+      - "traefik.http.routers.gui.service=gui"
       - "traefik.http.routers.gui.middlewares=authelia@docker"
       - "traefik.http.services.gui.loadbalancer.server.port=3000"
     volumes:
